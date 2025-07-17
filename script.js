@@ -8,22 +8,29 @@ let score = 0;
 let questions = [];
 let answers = [];
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await promptPlayerInfo();
+document.getElementById('player-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  player.name = document.getElementById('player-name').value.trim();
+  player.main = document.getElementById('player-main').value.trim();
+
+  if (!player.name || !player.main) {
+    alert('Please enter your name and main character.');
+    return;
+  }
+
+  document.getElementById('player-form').style.display = 'none';
+  document.getElementById('trivia-container').style.display = 'block';
+
   await loadQuestions();
   displayQuestion();
 });
-
-async function promptPlayerInfo() {
-  player.name = prompt("Enter your Player Name (e.g., DQ | SlawPro):");
-  player.main = prompt("Enter your Main Character(s):");
-}
 
 async function loadQuestions() {
   const response = await fetch('trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle and get 20
+  // Shuffle and take first 20
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
 }
 
@@ -35,11 +42,11 @@ function displayQuestion() {
 
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
-  
+
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  const choices = shuffleArray([q.correct_answer, ...q.incorrect_answers]);
+  const choices = shuffleArray([q.answers[q.answer], ...q.answers.filter((_, i) => i !== q.answer)]);
   choices.forEach(choice => {
     const btn = document.createElement('button');
     btn.textContent = choice;
@@ -49,21 +56,23 @@ function displayQuestion() {
 }
 
 function selectAnswer(selected, questionObj) {
-  const isCorrect = selected === questionObj.correct_answer;
+  const correctAnswer = questionObj.answers[questionObj.answer];
+  const isCorrect = selected === correctAnswer;
 
   answers.push({
     question: questionObj.question,
     selected: selected,
-    correct: questionObj.correct_answer,
+    correct: correctAnswer,
     timestamp: new Date().toISOString()
   });
 
-  if (isCorrect) {
-    score++;
-    if (questionObj.question.toLowerCase().includes('tekken')) {
-      document.getElementById('secret-msg').style.display = 'block';
-    }
+  if (isCorrect && questionObj.question.toLowerCase().includes('tekken')) {
+    const secretMsg = document.getElementById('secret-msg');
+    secretMsg.style.display = 'block';
+    setTimeout(() => secretMsg.style.display = 'none', 2000);
   }
+
+  if (isCorrect) score++;
 
   currentQuestion++;
   displayQuestion();
