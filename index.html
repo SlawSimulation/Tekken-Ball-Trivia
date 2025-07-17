@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>🔥 Tekken Ball Trivia 🔥</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Tekken Ball Trivia</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>🔥 Tekken Ball Trivia 🔥</h1>
-  <div id="trivia-container">
-    <p id="question">Loading questions...</p>
-    <div id="answers"></div>
-    <div id="secret-msg" style="display:none;"></div>
-    <!-- Navigation buttons will be inserted here by script.js -->
+
+  <div id="player-info">
+    <input type="text" id="player-name" placeholder="Player Name (e.g. DQ | SlawPro)">
+    <input type="text" id="main-character" placeholder="Main (e.g. Azucena/Leo)">
+    <button id="start-btn">Start Trivia</button>
   </div>
+
+  <div id="trivia-container" style="display:none;">
+    <p id="question">Loading...</p>
+    <div id="answers"></div>
+    <div id="secret-msg" style="display:none;">🎉 Secret Tekken Knowledge Unlocked! 🎉</div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
