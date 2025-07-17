@@ -19,4 +19,4 @@ jobs:
           git commit -m "Add new trivia result CSV"
           git push
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ACTIONS_PAT }}
