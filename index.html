@@ -9,21 +9,26 @@
   <h1>🔥 Tekken Ball Trivia 🔥</h1>
 
   <form id="player-form">
-    <label>Player Name: <input type="text" id="player-name" required></label><br>
-    <label>Main(s): <input type="text" id="player-main" required></label><br>
+    <label>
+      Player Name:<br />
+      <input type="text" id="player-name" placeholder="e.g. DQ | SlawPro" required />
+    </label><br /><br />
+    <label>
+      Main Character(s):<br />
+      <input type="text" id="player-main" placeholder="e.g. Azucena/Leo" required />
+    </label><br /><br />
     <button type="submit">Start Trivia</button>
   </form>
 
   <div id="trivia-container" style="display:none;">
     <p id="question"></p>
     <div id="answers"></div>
-    <button id="next-btn" style="display:none;">Next</button>
-    <div id="secret-msg" style="display:none;">🎉 Secret Tekken Knowledge Unlocked! 🎉</div>
+    <div id="secret-msg" style="display:none; margin-top: 1rem; font-weight: bold; color: #ff4444;">
+      🎉 Secret Tekken Knowledge Unlocked! 🎉
+    </div>
   </div>
 
-  <div id="finish-msg" style="display:none;">
-    <p>✅ Trivia completed. Your results have been saved!</p>
-  </div>
+  <div id="finish-msg" style="display:none;"></div>
 
   <script src="script.js"></script>
 </body>
