@@ -59,6 +59,10 @@ function displayQuestion() {
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
 
+  // Update progress bar width
+  const progressPercent = (currentQuestion / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
@@ -108,6 +112,9 @@ function selectAnswer(selected, correctAnswer, questionObj) {
 
 function endQuiz() {
   const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
+
+  // Fill progress bar to 100%
+  document.getElementById('progress-bar').style.width = `100%`;
 
   document.getElementById('trivia-container').innerHTML = `
     <h2>🎮 Game Over!</h2>
