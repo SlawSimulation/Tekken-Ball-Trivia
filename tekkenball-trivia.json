@@ -1,0 +1,102 @@
+[
+  {
+    "question": "What is the primary gameplay objective in Tekken Ball mode?",
+    "answer": 1,
+    "answers": ["Defeat your opponent with combos", "Hit your opponent with a ball to reduce their health", "Survive the longest without getting hit", "Collect all power-ups"]
+  },
+  {
+    "question": "Which Tekken game first introduced Tekken Ball mode?",
+    "answer": 0,
+    "answers": ["Tekken 3", "Tekken Tag Tournament", "Tekken 4", "Tekken 2"]
+  },
+  {
+    "question": "Who is a fan-favorite character known for dominating Tekken Ball matches due to fast strikes?",
+    "answer": 2,
+    "answers": ["King", "Nina", "Hwoarang", "Heihachi"]
+  },
+  {
+    "question": "In Tekken Ball, what happens when both players fail to hit the ball?",
+    "answer": 3,
+    "answers": ["Ball explodes", "Player with most HP wins", "Extra ball appears", "The ball resets"]
+  },
+  {
+    "question": "Which item behaves similarly to the Tekken Ball mechanics in Smash Bros?",
+    "answer": 0,
+    "answers": ["Soccer Ball", "Beam Sword", "Cracker Launcher", "Hammer"]
+  },
+  {
+    "question": "Which platform was Tekken Ball first available on?",
+    "answer": 1,
+    "answers": ["Arcade", "PlayStation 1", "PlayStation 2", "PSP"]
+  },
+  {
+    "question": "Can you win in Tekken Ball by health KO alone?",
+    "answer": 2,
+    "answers": ["No, only with the ball", "Only in Tag Mode", "Yes", "Only on higher difficulty"]
+  },
+  {
+    "question": "Which character has a special divekick that's effective in Tekken Ball?",
+    "answer": 0,
+    "answers": ["Jin Kazama", "Yoshimitsu", "Lee Chaolan", "Law"]
+  },
+  {
+    "question": "The Tekken Ball game mode is most similar to which sport?",
+    "answer": 2,
+    "answers": ["Tennis", "Basketball", "Volleyball", "Wrestling"]
+  },
+  {
+    "question": "What color is the original Tekken Ball?",
+    "answer": 3,
+    "answers": ["Green", "Blue", "Yellow", "Red"]
+  },
+  {
+    "question": "Can you launch the ball with throws in Tekken Ball?",
+    "answer": 1,
+    "answers": ["Yes, always", "No, throws don't affect the ball", "Only air throws", "Only if rage mode is active"]
+  },
+  {
+    "question": "Who yells 'Hyaaa!' in many Tekken Ball attacks?",
+    "answer": 0,
+    "answers": ["Paul", "Kazuya", "Lee", "Xiaoyu"]
+  },
+  {
+    "question": "Which Tekken 3 character is a boxing-style fighter, useful in Tekken Ball?",
+    "answer": 2,
+    "answers": ["Lei", "Heihachi", "Steve Fox", "Bryan"]
+  },
+  {
+    "question": "What determines ball power in Tekken Ball mode?",
+    "answer": 1,
+    "answers": ["Character weight", "Attack strength", "Throw distance", "Combo meter"]
+  },
+  {
+    "question": "Which move type is best for controlling the Tekken Ball?",
+    "answer": 2,
+    "answers": ["Throws", "Lows", "Mid-launchers", "Power crushes"]
+  },
+  {
+    "question": "Can the Tekken Ball reflect off the walls?",
+    "answer": 3,
+    "answers": ["Yes, but only once", "Yes, but loses power", "No", "No, Tekken Ball has no walls"]
+  },
+  {
+    "question": "Which character is often banned in fan-made Tekken Ball tournaments?",
+    "answer": 0,
+    "answers": ["Gon", "Eddy", "Devil Jin", "Armor King"]
+  },
+  {
+    "question": "Which of these is **not** a feature in Tekken Ball mode?",
+    "answer": 2,
+    "answers": ["Multiplayer", "Ball power scaling", "Combo breakers", "Hit reflection"]
+  },
+  {
+    "question": "Why is Law a strong pick in Tekken Ball?",
+    "answer": 1,
+    "answers": ["High throws", "Fast kick combos", "Projectile attacks", "Teleportation"]
+  },
+  {
+    "question": "What makes Tekken Ball different from standard fighting modes?",
+    "answer": 0,
+    "answers": ["The use of a volleyball-like mechanic", "Two-player tag options", "Timed health boosts", "Unlockable characters"]
+  }
+]
