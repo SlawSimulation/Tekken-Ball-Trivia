@@ -1,98 +1,108 @@
+let player = {
+  name: '',
+  main: ''
+};
+
+let currentQuestion = 0;
+let score = 0;
 let questions = [];
-let currentIndex = 0;
-let playerName = "";
-let mainCharacter = "";
-let responses = [];
+let answers = [];
 
-document.getElementById("start-btn").addEventListener("click", () => {
-  playerName = document.getElementById("player-name").value.trim();
-  mainCharacter = document.getElementById("main-character").value.trim();
-
-  if (!playerName || !mainCharacter) {
-    alert("Please enter your name and main.");
-    return;
-  }
-
-  document.getElementById("player-info").style.display = "none";
-  document.getElementById("trivia-container").style.display = "block";
-
-  loadQuestions();
+document.addEventListener("DOMContentLoaded", async () => {
+  await promptPlayerInfo();
+  await loadQuestions();
+  displayQuestion();
 });
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
+async function promptPlayerInfo() {
+  player.name = prompt("Enter your Player Name (e.g., DQ | SlawPro):");
+  player.main = prompt("Enter your Main Character(s):");
 }
 
 async function loadQuestions() {
-  const res = await fetch("trivia.json");
-  questions = await res.json();
-  shuffleArray(questions);
-  showQuestion();
+  const response = await fetch('trivia.json');
+  const allQuestions = await response.json();
+
+  // Shuffle and get 20
+  questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
 }
 
-function showQuestion() {
-  if (currentIndex >= questions.length) {
-    finishQuiz();
+function displayQuestion() {
+  if (currentQuestion >= questions.length) {
+    endQuiz();
     return;
   }
 
-  const question = questions[currentIndex];
-  document.getElementById("question").innerText = question.question;
+  const q = questions[currentQuestion];
+  document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
+  
+  const answersDiv = document.getElementById('answers');
+  answersDiv.innerHTML = '';
 
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-
-  question.answers.forEach((ans, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = ans;
-    btn.onclick = () => {
-      const correct = idx === question.answer;
-      if (correct && Math.random() > 0.5) {
-        document.getElementById("secret-msg").style.display = "block";
-        setTimeout(() => {
-          document.getElementById("secret-msg").style.display = "none";
-        }, 2000);
-      }
-
-      const timestamp = new Date().toISOString();
-      responses.push({
-        player: playerName,
-        main: mainCharacter,
-        question: question.question,
-        selected: ans,
-        correct: question.answers[question.answer],
-        timestamp
-      });
-
-      currentIndex++;
-      showQuestion();
-    };
+  const choices = shuffleArray([q.correct_answer, ...q.incorrect_answers]);
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.textContent = choice;
+    btn.onclick = () => selectAnswer(choice, q);
     answersDiv.appendChild(btn);
   });
 }
 
-function finishQuiz() {
-  alert("Trivia completed! Submitting your answers...");
+function selectAnswer(selected, questionObj) {
+  const isCorrect = selected === questionObj.correct_answer;
 
-  fetch("https://api.github.com/repos/SlawSimulation/Tekken-Ball-Trivia/contents/submissions/" + playerName.replace(/\W+/g, "_") + "_" + Date.now() + ".csv", {
-    method: "PUT",
-    headers: {
-      Authorization: "Bearer YOUR_GITHUB_PAT", // stored in Actions, not exposed
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: "Add trivia submission",
-      content: btoa(generateCSV(responses)),
-      branch: "main"
-    })
+  answers.push({
+    question: questionObj.question,
+    selected: selected,
+    correct: questionObj.correct_answer,
+    timestamp: new Date().toISOString()
   });
+
+  if (isCorrect) {
+    score++;
+    if (questionObj.question.toLowerCase().includes('tekken')) {
+      document.getElementById('secret-msg').style.display = 'block';
+    }
+  }
+
+  currentQuestion++;
+  displayQuestion();
 }
 
-function generateCSV(data) {
-  const headers = ["Player", "Main", "Question", "Selected", "Correct", "Timestamp"];
-  const rows = data.map(d => [d.player, d.main, d.question, d.selected, d.correct, d.timestamp]);
-  return [headers, ...rows].map(row => row.join(",")).join("\n");
+function endQuiz() {
+  document.getElementById('trivia-container').innerHTML = `
+    <h2>🎮 Game Over!</h2>
+    <p>${player.name} | Main: ${player.main}</p>
+    <p>Your final score: ${score}/${questions.length}</p>
+    <button onclick="downloadCSV()">Download Results CSV</button>
+  `;
+}
+
+function downloadCSV() {
+  const csvRows = [
+    ['Player', 'Main', 'Question', 'Selected', 'Correct', 'Timestamp'],
+    ...answers.map(ans => [
+      player.name,
+      player.main,
+      ans.question,
+      ans.selected,
+      ans.correct,
+      ans.timestamp
+    ])
+  ];
+
+  const csv = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const filename = `trivia_results_${Date.now()}.csv`;
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
