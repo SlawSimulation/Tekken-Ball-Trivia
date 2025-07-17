@@ -8,6 +8,9 @@ let score = 0;
 let questions = [];
 let answers = [];
 
+let questionStartTime = 0;
+let quizStartTime = 0;
+
 document.getElementById('player-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -21,6 +24,8 @@ document.getElementById('player-form').addEventListener('submit', async (e) => {
 
   document.getElementById('player-form').style.display = 'none';
   document.getElementById('trivia-container').style.display = 'block';
+
+  quizStartTime = Date.now();
 
   try {
     await loadQuestions();
@@ -38,7 +43,7 @@ async function loadQuestions() {
 
   // Shuffle and take first 20 questions
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
-  currentQuestion = 0; // reset counter
+  currentQuestion = 0;
   score = 0;
   answers = [];
 }
@@ -48,6 +53,8 @@ function displayQuestion() {
     endQuiz();
     return;
   }
+
+  questionStartTime = Date.now();
 
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
@@ -74,12 +81,16 @@ function displayQuestion() {
 }
 
 function selectAnswer(selected, correctAnswer, questionObj) {
+  const answerTime = (Date.now() - questionStartTime) / 1000; // seconds
   const isCorrect = selected === correctAnswer;
 
   answers.push({
+    questionNumber: currentQuestion + 1,
     question: questionObj.question,
     selected,
     correct: correctAnswer,
+    correctBool: isCorrect ? 'Yes' : 'No',
+    answerTime,
     timestamp: new Date().toISOString()
   });
 
@@ -96,23 +107,29 @@ function selectAnswer(selected, correctAnswer, questionObj) {
 }
 
 function endQuiz() {
+  const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
+
   document.getElementById('trivia-container').innerHTML = `
     <h2>🎮 Game Over!</h2>
     <p>${player.name} | Main: ${player.main}</p>
     <p>Your final score: ${score}/${questions.length}</p>
+    <p>Total quiz time: ${totalTime.toFixed(2)} seconds</p>
     <button onclick="downloadCSV()">Download Results CSV</button>
   `;
 }
 
 function downloadCSV() {
   const csvRows = [
-    ['Player', 'Main', 'Question', 'Selected', 'Correct', 'Timestamp'],
+    ['Player', 'Main', 'Question Number', 'Question', 'Selected Answer', 'Correct Answer', 'Correct?', 'Answer Time (s)', 'Timestamp'],
     ...answers.map(ans => [
       player.name,
       player.main,
+      ans.questionNumber,
       ans.question,
       ans.selected,
       ans.correct,
+      ans.correctBool,
+      ans.answerTime.toFixed(2),
       ans.timestamp
     ])
   ];
