@@ -1,113 +1,98 @@
-let currentQuestion = 0;
 let questions = [];
+let currentIndex = 0;
+let playerName = "";
+let mainCharacter = "";
+let responses = [];
 
-async function loadTrivia() {
-  try {
-    const res = await fetch('trivia.json'); // or 'tekkenball-trivia.json'
-    const data = await res.json();
-    questions = shuffleArray(data).slice(0, 20); // randomize and pick 20
-    showQuestion();
-    createNavButtons();
-  } catch (error) {
-    document.getElementById('question').innerText = 'Failed to load questions.';
-    console.error(error);
+document.getElementById("start-btn").addEventListener("click", () => {
+  playerName = document.getElementById("player-name").value.trim();
+  mainCharacter = document.getElementById("main-character").value.trim();
+
+  if (!playerName || !mainCharacter) {
+    alert("Please enter your name and main.");
+    return;
+  }
+
+  document.getElementById("player-info").style.display = "none";
+  document.getElementById("trivia-container").style.display = "block";
+
+  loadQuestions();
+});
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
 }
 
-function shuffleArray(arr) {
-  return arr
-    .map((q) => ({ sort: Math.random(), value: q }))
-    .sort((a, b) => a.sort - b.sort)
-    .map((a) => a.value);
+async function loadQuestions() {
+  const res = await fetch("trivia.json");
+  questions = await res.json();
+  shuffleArray(questions);
+  showQuestion();
 }
 
 function showQuestion() {
-  const questionEl = document.getElementById('question');
-  const answersEl = document.getElementById('answers');
-  const secretMsg = document.getElementById('secret-msg');
-  const q = questions[currentQuestion];
+  if (currentIndex >= questions.length) {
+    finishQuiz();
+    return;
+  }
 
-  questionEl.innerText = `Q${currentQuestion + 1}: ${q.question}`;
-  answersEl.innerHTML = '';
-  secretMsg.style.display = 'none';
-  secretMsg.innerText = '';
+  const question = questions[currentIndex];
+  document.getElementById("question").innerText = question.question;
 
-  q.answers.forEach((ans, index) => {
-    const btn = document.createElement('button');
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  question.answers.forEach((ans, idx) => {
+    const btn = document.createElement("button");
     btn.textContent = ans;
     btn.onclick = () => {
-      const correct = index === q.answer;
-      if (correct) {
-        btn.classList.add('correct');
-        secretMsg.innerText = '🎉 Secret Tekken Knowledge Unlocked! 🎉';
-        secretMsg.style.display = 'block';
-      } else {
-        btn.classList.add('wrong');
-        secretMsg.innerText = '❌ Try again, Tekken Warrior!';
-        secretMsg.style.display = 'block';
+      const correct = idx === question.answer;
+      if (correct && Math.random() > 0.5) {
+        document.getElementById("secret-msg").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("secret-msg").style.display = "none";
+        }, 2000);
       }
-      disableAnswers();
+
+      const timestamp = new Date().toISOString();
+      responses.push({
+        player: playerName,
+        main: mainCharacter,
+        question: question.question,
+        selected: ans,
+        correct: question.answers[question.answer],
+        timestamp
+      });
+
+      currentIndex++;
+      showQuestion();
     };
-    answersEl.appendChild(btn);
+    answersDiv.appendChild(btn);
   });
-
-  updateNavButtons();
 }
 
-function disableAnswers() {
-  const buttons = document.querySelectorAll('#answers button');
-  buttons.forEach((btn) => (btn.disabled = true));
+function finishQuiz() {
+  alert("Trivia completed! Submitting your answers...");
+
+  fetch("https://api.github.com/repos/SlawSimulation/Tekken-Ball-Trivia/contents/submissions/" + playerName.replace(/\W+/g, "_") + "_" + Date.now() + ".csv", {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer YOUR_GITHUB_PAT", // stored in Actions, not exposed
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Add trivia submission",
+      content: btoa(generateCSV(responses)),
+      branch: "main"
+    })
+  });
 }
 
-function createNavButtons() {
-  const nav = document.createElement('div');
-  nav.id = 'nav-buttons';
-
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = '⬅ Previous';
-  prevBtn.onclick = () => {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      showQuestion();
-    }
-  };
-
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'Next ➡';
-  nextBtn.onclick = () => {
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion();
-    } else {
-      endGame();
-    }
-  };
-
-  nav.appendChild(prevBtn);
-  nav.appendChild(nextBtn);
-  document.getElementById('trivia-container').appendChild(nav);
+function generateCSV(data) {
+  const headers = ["Player", "Main", "Question", "Selected", "Correct", "Timestamp"];
+  const rows = data.map(d => [d.player, d.main, d.question, d.selected, d.correct, d.timestamp]);
+  return [headers, ...rows].map(row => row.join(",")).join("\n");
 }
-
-function updateNavButtons() {
-  const nav = document.getElementById('nav-buttons');
-  if (!nav) return;
-  const [prevBtn, nextBtn] = nav.querySelectorAll('button');
-  prevBtn.disabled = currentQuestion === 0;
-  nextBtn.textContent = currentQuestion < questions.length - 1 ? 'Next ➡' : '🎮 Restart';
-  nextBtn.onclick = () => {
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion();
-    } else {
-      location.reload(); // restart
-    }
-  };
-}
-
-function endGame() {
-  document.getElementById('question').innerText = "🏆 You've mastered Tekken Ball Trivia!";
-  document.getElementById('answers').innerHTML = '';
-  document.getElementById('secret-msg').innerText = "Thanks for playing!";
-}
-
-loadTrivia();
