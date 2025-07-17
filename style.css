@@ -1,105 +1,49 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #e0e0e0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  background: #121212;
+  color: #fff;
+  padding: 2rem;
+  text-align: center;
 }
 
 h1 {
-  font-size: 3rem;
-  color: #ff4500;
-  text-shadow: 2px 2px 8px #00000088;
-  margin-bottom: 1rem;
-  user-select: none;
+  color: #ff4444;
+  margin-bottom: 2rem;
 }
 
-#trivia-container {
-  background: rgba(0, 0, 0, 0.7);
-  border: 3px solid #ff4500;
-  border-radius: 15px;
-  padding: 2rem 3rem;
-  max-width: 600px;
-  width: 100%;
-  box-shadow: 0 0 20px #ff4500aa;
+#player-info input {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  width: 250px;
+  border-radius: 8px;
+  border: none;
+}
+
+#start-btn {
+  padding: 0.5rem 1rem;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 #question {
   font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  text-align: center;
-  min-height: 4.5rem;
-}
-
-#answers {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 #answers button {
-  background: linear-gradient(45deg, #ff4500, #e03e00);
+  display: block;
+  margin: 0.5rem auto;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  background-color: #222;
+  color: white;
   cursor: pointer;
-  box-shadow: 0 4px 8px #d4400080;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  min-width: 120px;
-  user-select: none;
 }
 
-#answers button:hover,
-#answers button:focus {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px #ff6f2dcc;
-  outline: none;
-}
-
-#secret-msg {
-  margin-top: 1.5rem;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #00ff99;
-  text-align: center;
-  text-shadow: 0 0 10px #00ff99bb;
-  user-select: none;
-}
-
-/* Responsive */
-
-@media (max-width: 480px) {
-  #trivia-container {
-    padding: 1.5rem 2rem;
-  }
-
-  h1 {
-    font-size: 2.25rem;
-  }
-
-  #question {
-    font-size: 1.25rem;
-    min-height: 5rem;
-  }
-
-  #answers button {
-    min-width: 100%;
-    font-size: 1rem;
-    padding: 0.65rem 1rem;
-  }
+#answers button:hover {
+  background-color: #333;
 }
