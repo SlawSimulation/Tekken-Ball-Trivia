@@ -22,16 +22,25 @@ document.getElementById('player-form').addEventListener('submit', async (e) => {
   document.getElementById('player-form').style.display = 'none';
   document.getElementById('trivia-container').style.display = 'block';
 
-  await loadQuestions();
-  displayQuestion();
+  try {
+    await loadQuestions();
+    displayQuestion();
+  } catch (error) {
+    alert('Failed to load questions, please try again later.');
+    console.error(error);
+  }
 });
 
 async function loadQuestions() {
   const response = await fetch('trivia.json');
+  if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle and take first 20
+  // Shuffle and take first 20 questions
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
+  currentQuestion = 0; // reset counter
+  score = 0;
+  answers = [];
 }
 
 function displayQuestion() {
@@ -46,22 +55,30 @@ function displayQuestion() {
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  const choices = shuffleArray([q.answers[q.answer], ...q.answers.filter((_, i) => i !== q.answer)]);
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.textContent = choice;
-    btn.onclick = () => selectAnswer(choice, q);
-    answersDiv.appendChild(btn);
-  });
+  try {
+    const correctIndex = q.answer;
+    const correctAnswer = q.answers[correctIndex];
+    const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
+    const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
+
+    choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.textContent = choice;
+      btn.onclick = () => selectAnswer(choice, correctAnswer, q);
+      answersDiv.appendChild(btn);
+    });
+  } catch (err) {
+    console.error('Error displaying question:', err);
+    alert('Error displaying question, please reload.');
+  }
 }
 
-function selectAnswer(selected, questionObj) {
-  const correctAnswer = questionObj.answers[questionObj.answer];
+function selectAnswer(selected, correctAnswer, questionObj) {
   const isCorrect = selected === correctAnswer;
 
   answers.push({
     question: questionObj.question,
-    selected: selected,
+    selected,
     correct: correctAnswer,
     timestamp: new Date().toISOString()
   });
@@ -69,7 +86,7 @@ function selectAnswer(selected, questionObj) {
   if (isCorrect && questionObj.question.toLowerCase().includes('tekken')) {
     const secretMsg = document.getElementById('secret-msg');
     secretMsg.style.display = 'block';
-    setTimeout(() => secretMsg.style.display = 'none', 2000);
+    setTimeout(() => (secretMsg.style.display = 'none'), 2000);
   }
 
   if (isCorrect) score++;
