@@ -1,60 +1,82 @@
-function fetchTrivia() {
-  fetch('trivia.json')
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.length > 0) {
-        loadQuestion(data[0]); // Load the first trivia question
-      } else {
-        showError("No trivia found.");
-      }
-    })
-    .catch(err => {
-      console.error("Error loading trivia:", err);
-      showError("Failed to load trivia.");
-    });
+const questionElem = document.getElementById('question');
+const answersElem = document.getElementById('answers');
+const secretMsg = document.getElementById('secret-msg');
+const triviaContainer = document.getElementById('trivia-container');
+
+let questions = [];
+let currentIndex = 0;
+
+async function loadQuestions() {
+  const res = await fetch('trivia.json');
+  questions = await res.json();
+  currentIndex = 0;
+  showQuestion(currentIndex);
 }
 
-function loadQuestion(qData) {
-  const correct = qData.answer.trim();
-  const question = qData.question;
+function showQuestion(index) {
+  if (!questions[index]) return;
 
-  document.getElementById('question').innerText = question;
-  const answersDiv = document.getElementById('answers');
-  answersDiv.innerHTML = '';
+  const q = questions[index];
+  questionElem.textContent = q.question;
 
-  // Generate fake answers + correct one
-  const options = shuffle([
-    correct,
-    "Kazuya", "Nina", "Gon", "Yoshimitsu", "Heihachi"
-  ].filter((v, i, a) => a.indexOf(v) === i).slice(0, 4));
+  answersElem.innerHTML = '';
+  secretMsg.style.display = 'none';
 
-  options.forEach(opt => {
+  q.answers.forEach((answer, i) => {
     const btn = document.createElement('button');
-    btn.innerText = opt;
-    btn.onclick = () => handleAnswer(opt, correct);
-    answersDiv.appendChild(btn);
+    btn.textContent = answer;
+    btn.onclick = () => checkAnswer(i);
+    answersElem.appendChild(btn);
   });
+
+  addNavigationButtons();
 }
 
-function handleAnswer(selected, correct) {
-  if (selected === correct) {
-    if (selected.toLowerCase() === 'gon') {
-      document.getElementById('secret-msg').style.display = 'block';
-    }
-    alert("✅ Correct!");
-    fetchTrivia(); // Load next question
+function checkAnswer(selectedIndex) {
+  const correctIndex = questions[currentIndex].answer;
+  if (selectedIndex === correctIndex) {
+    secretMsg.style.display = 'block';
+    secretMsg.textContent = '🎉 Correct! Secret Tekken Knowledge Unlocked! 🎉';
   } else {
-    alert("❌ Wrong! Try again.");
+    secretMsg.style.display = 'block';
+    secretMsg.textContent = '❌ Incorrect! Try again or move on.';
   }
 }
 
-function showError(message) {
-  document.getElementById('question').innerText = message;
-  document.getElementById('answers').innerHTML = '';
+function addNavigationButtons() {
+  const existingNav = document.getElementById('nav-buttons');
+  if (existingNav) existingNav.remove();
+
+  const navDiv = document.createElement('div');
+  navDiv.id = 'nav-buttons';
+  navDiv.style.marginTop = '1rem';
+  navDiv.style.display = 'flex';
+  navDiv.style.justifyContent = 'center';
+  navDiv.style.gap = '1rem';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '⬅️ Previous';
+  prevBtn.disabled = currentIndex === 0;
+  prevBtn.onclick = () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      showQuestion(currentIndex);
+    }
+  };
+  navDiv.appendChild(prevBtn);
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = 'Next ➡️';
+  nextBtn.disabled = currentIndex === questions.length - 1;
+  nextBtn.onclick = () => {
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      showQuestion(currentIndex);
+    }
+  };
+  navDiv.appendChild(nextBtn);
+
+  triviaContainer.appendChild(navDiv);
 }
 
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-window.onload = fetchTrivia;
+loadQuestions();
