@@ -1,34 +1,44 @@
-const trivia = [
-  {
-    question: "Who was the final boss in Tekken Ball Mode?",
-    options: ["Heihachi", "Ogre", "Gon", "Devil"],
-    answer: "Gon",
-    secretTrigger: true
-  },
-  {
-    question: "Which Tekken game first featured Tekken Ball?",
-    options: ["Tekken 2", "Tekken 3", "Tekken Tag", "Tekken 5"],
-    answer: "Tekken 3"
-  }
-];
+const API_KEY = 'YOUR_API_KEY_HERE';
+const endpoint = 'https://api.api-ninjas.com/v1/trivia';
 
-let current = 0;
+function fetchTrivia() {
+  fetch(endpoint, {
+    headers: {
+      'X-Api-Key': API_KEY
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data && data[0]) {
+        loadQuestion(data[0]);
+      }
+    })
+    .catch(err => {
+      console.error('Error fetching trivia:', err);
+      document.getElementById('question').innerText = 'Failed to load question.';
+    });
+}
 
-function loadQuestion() {
-  const q = trivia[current];
-  document.getElementById('question').innerText = q.question;
+function loadQuestion(qData) {
+  const correct = qData.answer.trim();
+  const q = qData.question;
+
+  document.getElementById('question').innerText = q;
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  q.options.forEach(opt => {
+  // Shuffle answers: include correct one + 3 random distractors
+  const options = shuffle([correct, "Kazuya", "Nina", "Gon", "Yoshimitsu"].filter((v, i, a) => a.indexOf(v) === i).slice(0, 4));
+
+  options.forEach(opt => {
     const btn = document.createElement('button');
     btn.innerText = opt;
     btn.onclick = () => {
-      if (opt === q.answer) {
-        if (q.secretTrigger) {
+      if (opt === correct) {
+        if (opt === 'Gon') { // SECRET TRIGGER
           document.getElementById('secret-msg').style.display = 'block';
         }
-        nextQuestion();
+        fetchTrivia();
       } else {
         alert("Try again!");
       }
@@ -37,14 +47,8 @@ function loadQuestion() {
   });
 }
 
-function nextQuestion() {
-  current++;
-  if (current < trivia.length) {
-    loadQuestion();
-  } else {
-    document.getElementById('question').innerText = "🎉 You've completed the trivia!";
-    document.getElementById('answers').innerHTML = '';
-  }
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
 }
 
-window.onload = loadQuestion;
+window.onload = fetchTrivia;
