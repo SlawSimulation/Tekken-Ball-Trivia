@@ -1,0 +1,35 @@
+# .github/workflows/trivia-api.yml
+name: Update Trivia
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  update-trivia:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install node-fetch@2
+
+      - name: Run trivia fetcher
+        run: node trivia-proxy.js
+        env:
+          NINJA_API_KEY: ${{ secrets.NINJA_API_KEY }}
+
+      - name: Commit & Push
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add public/trivia.json
+          git commit -m "Update trivia"
+          git push
