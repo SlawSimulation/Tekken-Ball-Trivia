@@ -1,82 +1,113 @@
-const questionElem = document.getElementById('question');
-const answersElem = document.getElementById('answers');
-const secretMsg = document.getElementById('secret-msg');
-const triviaContainer = document.getElementById('trivia-container');
-
+let currentQuestion = 0;
 let questions = [];
-let currentIndex = 0;
 
-async function loadQuestions() {
-  const res = await fetch('trivia.json');
-  questions = await res.json();
-  currentIndex = 0;
-  showQuestion(currentIndex);
-}
-
-function showQuestion(index) {
-  if (!questions[index]) return;
-
-  const q = questions[index];
-  questionElem.textContent = q.question;
-
-  answersElem.innerHTML = '';
-  secretMsg.style.display = 'none';
-
-  q.answers.forEach((answer, i) => {
-    const btn = document.createElement('button');
-    btn.textContent = answer;
-    btn.onclick = () => checkAnswer(i);
-    answersElem.appendChild(btn);
-  });
-
-  addNavigationButtons();
-}
-
-function checkAnswer(selectedIndex) {
-  const correctIndex = questions[currentIndex].answer;
-  if (selectedIndex === correctIndex) {
-    secretMsg.style.display = 'block';
-    secretMsg.textContent = '🎉 Correct! Secret Tekken Knowledge Unlocked! 🎉';
-  } else {
-    secretMsg.style.display = 'block';
-    secretMsg.textContent = '❌ Incorrect! Try again or move on.';
+async function loadTrivia() {
+  try {
+    const res = await fetch('trivia.json'); // or 'tekkenball-trivia.json'
+    const data = await res.json();
+    questions = shuffleArray(data).slice(0, 20); // randomize and pick 20
+    showQuestion();
+    createNavButtons();
+  } catch (error) {
+    document.getElementById('question').innerText = 'Failed to load questions.';
+    console.error(error);
   }
 }
 
-function addNavigationButtons() {
-  const existingNav = document.getElementById('nav-buttons');
-  if (existingNav) existingNav.remove();
-
-  const navDiv = document.createElement('div');
-  navDiv.id = 'nav-buttons';
-  navDiv.style.marginTop = '1rem';
-  navDiv.style.display = 'flex';
-  navDiv.style.justifyContent = 'center';
-  navDiv.style.gap = '1rem';
-
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = '⬅️ Previous';
-  prevBtn.disabled = currentIndex === 0;
-  prevBtn.onclick = () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      showQuestion(currentIndex);
-    }
-  };
-  navDiv.appendChild(prevBtn);
-
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'Next ➡️';
-  nextBtn.disabled = currentIndex === questions.length - 1;
-  nextBtn.onclick = () => {
-    if (currentIndex < questions.length - 1) {
-      currentIndex++;
-      showQuestion(currentIndex);
-    }
-  };
-  navDiv.appendChild(nextBtn);
-
-  triviaContainer.appendChild(navDiv);
+function shuffleArray(arr) {
+  return arr
+    .map((q) => ({ sort: Math.random(), value: q }))
+    .sort((a, b) => a.sort - b.sort)
+    .map((a) => a.value);
 }
 
-loadQuestions();
+function showQuestion() {
+  const questionEl = document.getElementById('question');
+  const answersEl = document.getElementById('answers');
+  const secretMsg = document.getElementById('secret-msg');
+  const q = questions[currentQuestion];
+
+  questionEl.innerText = `Q${currentQuestion + 1}: ${q.question}`;
+  answersEl.innerHTML = '';
+  secretMsg.style.display = 'none';
+  secretMsg.innerText = '';
+
+  q.answers.forEach((ans, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = ans;
+    btn.onclick = () => {
+      const correct = index === q.answer;
+      if (correct) {
+        btn.classList.add('correct');
+        secretMsg.innerText = '🎉 Secret Tekken Knowledge Unlocked! 🎉';
+        secretMsg.style.display = 'block';
+      } else {
+        btn.classList.add('wrong');
+        secretMsg.innerText = '❌ Try again, Tekken Warrior!';
+        secretMsg.style.display = 'block';
+      }
+      disableAnswers();
+    };
+    answersEl.appendChild(btn);
+  });
+
+  updateNavButtons();
+}
+
+function disableAnswers() {
+  const buttons = document.querySelectorAll('#answers button');
+  buttons.forEach((btn) => (btn.disabled = true));
+}
+
+function createNavButtons() {
+  const nav = document.createElement('div');
+  nav.id = 'nav-buttons';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '⬅ Previous';
+  prevBtn.onclick = () => {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion();
+    }
+  };
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = 'Next ➡';
+  nextBtn.onclick = () => {
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      showQuestion();
+    } else {
+      endGame();
+    }
+  };
+
+  nav.appendChild(prevBtn);
+  nav.appendChild(nextBtn);
+  document.getElementById('trivia-container').appendChild(nav);
+}
+
+function updateNavButtons() {
+  const nav = document.getElementById('nav-buttons');
+  if (!nav) return;
+  const [prevBtn, nextBtn] = nav.querySelectorAll('button');
+  prevBtn.disabled = currentQuestion === 0;
+  nextBtn.textContent = currentQuestion < questions.length - 1 ? 'Next ➡' : '🎮 Restart';
+  nextBtn.onclick = () => {
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      showQuestion();
+    } else {
+      location.reload(); // restart
+    }
+  };
+}
+
+function endGame() {
+  document.getElementById('question').innerText = "🏆 You've mastered Tekken Ball Trivia!";
+  document.getElementById('answers').innerHTML = '';
+  document.getElementById('secret-msg').innerText = "Thanks for playing!";
+}
+
+loadTrivia();
