@@ -29,6 +29,23 @@ input, button {
   cursor: pointer;
 }
 
+#progress-container {
+  width: 80%;
+  background-color: #444;
+  height: 15px;
+  margin: 1rem auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff4444, #ff0000);
+  transition: width 0.3s ease;
+}
+
+
 #answers button:hover {
   background: #666;
 }
