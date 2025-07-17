@@ -1,0 +1,22 @@
+name: Save Uploaded Trivia CSVs
+
+on:
+  push:
+    paths:
+      - 'results/*.csv'
+
+jobs:
+  save-results:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Commit and Push CSV
+        run: |
+          git config user.name "TriviaBot"
+          git config user.email "trivia@github.com"
+          git add results/*.csv
+          git commit -m "Add new trivia result CSV"
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
