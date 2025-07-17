@@ -1,6 +1,102 @@
 [
   {
-    "question": "Who was the boss in Tekken Ball?",
-    "answer": "Gon"
+    "question": "What is the capital of Japan?",
+    "answer": 1,
+    "answers": ["Kyoto", "Tokyo", "Osaka", "Nagoya"]
+  },
+  {
+    "question": "Which element has the chemical symbol 'O'?",
+    "answer": 2,
+    "answers": ["Gold", "Hydrogen", "Oxygen", "Silver"]
+  },
+  {
+    "question": "Who painted the Mona Lisa?",
+    "answer": 0,
+    "answers": ["Leonardo da Vinci", "Pablo Picasso", "Vincent van Gogh", "Claude Monet"]
+  },
+  {
+    "question": "What year did the first Tekken game release?",
+    "answer": 3,
+    "answers": ["1993", "1995", "1997", "1994"]
+  },
+  {
+    "question": "Which planet is known as the Red Planet?",
+    "answer": 0,
+    "answers": ["Mars", "Venus", "Jupiter", "Saturn"]
+  },
+  {
+    "question": "What is the largest ocean on Earth?",
+    "answer": 2,
+    "answers": ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"]
+  },
+  {
+    "question": "In which sport is the term 'home run' used?",
+    "answer": 1,
+    "answers": ["Football", "Baseball", "Basketball", "Tennis"]
+  },
+  {
+    "question": "Who wrote 'Romeo and Juliet'?",
+    "answer": 3,
+    "answers": ["Mark Twain", "Charles Dickens", "Jane Austen", "William Shakespeare"]
+  },
+  {
+    "question": "What gas do plants absorb from the atmosphere?",
+    "answer": 2,
+    "answers": ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"]
+  },
+  {
+    "question": "What is the hardest natural substance on Earth?",
+    "answer": 0,
+    "answers": ["Diamond", "Gold", "Iron", "Silver"]
+  },
+  {
+    "question": "What is the tallest mountain in the world?",
+    "answer": 1,
+    "answers": ["K2", "Mount Everest", "Kangchenjunga", "Lhotse"]
+  },
+  {
+    "question": "Which country hosted the 2016 Summer Olympics?",
+    "answer": 2,
+    "answers": ["China", "UK", "Brazil", "Russia"]
+  },
+  {
+    "question": "Which organ is responsible for pumping blood in the human body?",
+    "answer": 0,
+    "answers": ["Heart", "Lungs", "Liver", "Kidneys"]
+  },
+  {
+    "question": "What is the main ingredient in sushi?",
+    "answer": 1,
+    "answers": ["Beef", "Rice", "Potato", "Chicken"]
+  },
+  {
+    "question": "Which country is known as the Land of the Rising Sun?",
+    "answer": 2,
+    "answers": ["China", "South Korea", "Japan", "Thailand"]
+  },
+  {
+    "question": "How many players are there in a standard soccer team on the field?",
+    "answer": 3,
+    "answers": ["9", "10", "11", "11"]
+  },
+  {
+    "question": "What is the chemical formula for water?",
+    "answer": 0,
+    "answers": ["H2O", "CO2", "O2", "NaCl"]
+  },
+  {
+    "question": "Who was the first president of the United States?",
+    "answer": 1,
+    "answers": ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "John Adams"]
+  },
+  {
+    "question": "Which animal is known as the King of the Jungle?",
+    "answer": 3,
+    "answers": ["Tiger", "Elephant", "Gorilla", "Lion"]
+  },
+  {
+    "question": "What device do we use to look at stars?",
+    "answer": 2,
+    "answers": ["Microscope", "Binoculars", "Telescope", "Camera"]
   }
 ]
