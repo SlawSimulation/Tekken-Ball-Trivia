@@ -115,7 +115,7 @@ function escapeHTML(str) {
 }
 
 function goBack() {
-  window.location.href = '../index.html';
+  window.location.href = '../../index.html';
 }
 
 loadLeaderboard();
