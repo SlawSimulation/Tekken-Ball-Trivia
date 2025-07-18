@@ -1,18 +1,10 @@
-let player = {
-  name: '',
-  main: ''
-};
-
+let player = { name: '', main: '' };
 let currentQuestion = 0;
 let score = 0;
 let questions = [];
 let answers = [];
-
 let questionStartTime = 0;
 let quizStartTime = 0;
-
-const questionTimeLimit = 15; // seconds
-let timerInterval;
 
 document.getElementById('player-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -25,7 +17,7 @@ document.getElementById('player-form').addEventListener('submit', async (e) => {
     return;
   }
 
-  document.getElementById('player-form').style.display = 'none';
+  document.getElementById('player-form-container').style.display = 'none';
   document.getElementById('trivia-container').style.display = 'block';
 
   quizStartTime = Date.now();
@@ -44,8 +36,8 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle all questions and pick 20
-  questions = shuffleArray(allQuestions).slice(0, 20);
+  // Shuffle and take first 20 questions
+  questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
   currentQuestion = 0;
   score = 0;
   answers = [];
@@ -56,8 +48,6 @@ function displayQuestion() {
     endQuiz();
     return;
   }
-
-  resetTimer();
 
   questionStartTime = Date.now();
 
@@ -71,24 +61,25 @@ function displayQuestion() {
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  const correctIndex = q.answer;
-  const correctAnswer = q.answers[correctIndex];
-  const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
-  const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
+  try {
+    const correctIndex = q.answer;
+    const correctAnswer = q.answers[correctIndex];
+    const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
+    const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
 
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.textContent = choice;
-    btn.onclick = () => selectAnswer(choice, correctAnswer, q);
-    answersDiv.appendChild(btn);
-  });
-
-  startTimer();
+    choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.textContent = choice;
+      btn.onclick = () => selectAnswer(choice, correctAnswer, q);
+      answersDiv.appendChild(btn);
+    });
+  } catch (err) {
+    console.error('Error displaying question:', err);
+    alert('Error displaying question, please reload.');
+  }
 }
 
 function selectAnswer(selected, correctAnswer, questionObj) {
-  stopTimer();
-
   const answerTime = (Date.now() - questionStartTime) / 1000; // seconds
   const isCorrect = selected === correctAnswer;
 
@@ -115,23 +106,20 @@ function selectAnswer(selected, correctAnswer, questionObj) {
 }
 
 function endQuiz() {
-  stopTimer();
-
   const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
 
-  // Fill progress bar to 100%
-  document.getElementById('progress-bar').style.width = `100%`;
-
   document.getElementById('trivia-container').style.display = 'none';
-  const finishDiv = document.getElementById('finish-msg');
-  finishDiv.style.display = 'block';
-  finishDiv.innerHTML = `
-    <h2>🎮 Game Over!</h2>
-    <p>${player.name} | Main: ${player.main}</p>
-    <p>Your final score: ${score}/${questions.length}</p>
-    <p>Total quiz time: ${totalTime.toFixed(2)} seconds</p>
-    <button onclick="downloadCSV()">Download Results CSV</button>
-  `;
+
+  const endContainer = document.getElementById('end-container');
+  document.getElementById('final-score').textContent = `${player.name} | Main: ${player.main} | Score: ${score}/${questions.length}`;
+  document.getElementById('total-time').textContent = `Total quiz time: ${totalTime.toFixed(2)} seconds`;
+
+  endContainer.style.display = 'block';
+
+  // Bind buttons
+  document.getElementById('btn-download-csv').onclick = downloadCSV;
+  document.getElementById('btn-restart-quiz').onclick = restartQuiz;
+  document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
 }
 
 function downloadCSV() {
@@ -162,34 +150,18 @@ function downloadCSV() {
   document.body.removeChild(link);
 }
 
-// Timer code
-function startTimer() {
-  let timeLeft = questionTimeLimit;
-  const timeLeftSpan = document.getElementById('time-left');
-  timeLeftSpan.textContent = timeLeft;
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timeLeftSpan.textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      selectAnswer('', questions[currentQuestion], questions[currentQuestion]); // no answer chosen
-    }
-  }, 1000);
+function restartQuiz() {
+  document.getElementById('end-container').style.display = 'none';
+  document.getElementById('player-form-container').style.display = 'block';
+  // Clear inputs
+  document.getElementById('player-name').value = '';
+  document.getElementById('player-main').value = '';
 }
 
-function stopTimer() {
-  clearInterval(timerInterval);
-}
-
-function resetTimer() {
-  stopTimer();
-  document.getElementById('time-left').textContent = questionTimeLimit;
+function goLeaderboard() {
+  window.location.href = 'leaderboard/leaderboard.html';
 }
 
 function shuffleArray(arr) {
-  return arr
-    .map(value => ({ value, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => value);
+  return arr.sort(() => Math.random() - 0.5);
 }

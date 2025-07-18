@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>🔥 Tekken Ball Trivia 🔥</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tekken Ball Trivia</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🔥 Tekken Ball Trivia 🔥</h1>
-
-  <form id="player-form">
-    <label>
-      Player Name:<br />
-      <input type="text" id="player-name" placeholder="e.g. DQ | SlawPro" required />
-    </label><br /><br />
-    <label>
-      Main Character(s):<br />
-      <input type="text" id="player-main" placeholder="e.g. Azucena/Leo" required />
-    </label><br /><br />
-    <button type="submit">Start Trivia</button>
-  </form>
-
-  <div id="trivia-container" style="display:none;">
-    <div id="progress-bar-container">
-      <div id="progress-bar"></div>
-    </div>
-    <p id="timer">Time Left: <span id="time-left">15</span>s</p>
-    <p id="question"></p>
-    <div id="answers"></div>
-    <div id="secret-msg" style="display:none; margin-top: 1rem; font-weight: bold; color: #ff4444;">
-      🎉 Secret Tekken Knowledge Unlocked! 🎉
-    </div>
+  <div id="player-form-container">
+    <h1>Tekken Ball Trivia</h1>
+    <form id="player-form">
+      <label>
+        Your Name:
+        <input type="text" id="player-name" required />
+      </label><br />
+      <label>
+        Your Main Character:
+        <input type="text" id="player-main" required />
+      </label><br />
+      <button type="submit">Start Quiz</button>
+    </form>
+    <button id="btn-go-leaderboard" onclick="goLeaderboard()">View Leaderboard</button>
   </div>
 
-  <div id="finish-msg" style="display:none;"></div>
+  <div id="trivia-container" style="display:none;">
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+    <div id="secret-msg" style="display:none;">🔥 Secret unlocked! 🔥</div>
+  </div>
+
+  <div id="end-container" style="display:none;">
+    <h2>🎮 Game Over!</h2>
+    <p id="final-score"></p>
+    <p id="total-time"></p>
+    <button id="btn-download-csv">Download Your Results CSV</button>
+    <button id="btn-restart-quiz">Restart Quiz</button>
+    <button id="btn-go-leaderboard-end">Go to Leaderboard</button>
+    <p><strong>Important:</strong> After downloading, please upload your CSV file manually to the <code>doc/results/</code> folder in the GitHub repository to have your score included in the leaderboard. This is required to keep your data secure.</p>
+  </div>
 
   <script src="script.js"></script>
 </body>
