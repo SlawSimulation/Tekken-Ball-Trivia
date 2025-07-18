@@ -1,62 +1,82 @@
 async function loadLeaderboard() {
-  try {
-    const indexResponse = await fetch('../results/results-index.json');
-    if (!indexResponse.ok) throw new Error('Could not load results-index.json');
-    const indexData = await indexResponse.json();
+  const tableBody = document.getElementById("leaderboard-body");
+  if (!tableBody) {
+    console.error("Leaderboard table body not found");
+    return;
+  }
 
+  try {
+    const indexResponse = await fetch("../results/results-index.json");
+    if (!indexResponse.ok) {
+      throw new Error("Failed to load results index");
+    }
+
+    const indexData = await indexResponse.json();
     const allResults = [];
 
     for (const csvPath of indexData.csvFiles) {
       try {
-        const csvResponse = await fetch(csvPath);
-        if (!csvResponse.ok) continue;
+        const csvResponse = await fetch(`../${csvPath}`);
+        if (!csvResponse.ok) {
+          console.warn(`Skipped ${csvPath} (status ${csvResponse.status})`);
+          continue;
+        }
+
         const csvText = await csvResponse.text();
         const rows = csvText.trim().split('\n');
-        const headers = rows[0].split(',');
+        if (rows.length < 2) continue;
+
+        const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
 
         for (let i = 1; i < rows.length; i++) {
-          const cols = rows[i].split(',');
+          const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
+          if (cols.length !== headers.length) continue;
+
           const result = {};
           headers.forEach((header, idx) => {
-            result[header.replace(/"/g, '')] = cols[idx].replace(/"/g, '');
+            result[header] = cols[idx];
           });
+
           allResults.push(result);
         }
-      } catch {
-        // ignore CSV loading errors
+      } catch (err) {
+        console.warn(`Error parsing ${csvPath}:`, err);
+        continue;
       }
     }
 
-    // Sort by Score desc, then Time asc, then Date desc
+    // Sort by Score descending, then by Time ascending
     allResults.sort((a, b) => {
-      const scoreDiff = parseInt(b.Score) - parseInt(a.Score);
+      const scoreDiff = (parseInt(b.Score) || 0) - (parseInt(a.Score) || 0);
       if (scoreDiff !== 0) return scoreDiff;
-      const timeDiff = parseFloat(a['Time (s)']) - parseFloat(b['Time (s)']);
-      if (timeDiff !== 0) return timeDiff;
-      return new Date(b.Date) - new Date(a.Date);
+      return (parseFloat(a["Time (s)"]) || 9999) - (parseFloat(b["Time (s)"]) || 9999);
     });
 
-    const tbody = document.getElementById('leaderboard-body');
-    tbody.innerHTML = '';
+    // Populate leaderboard
+    tableBody.innerHTML = "";
+    allResults.forEach(result => {
+      const row = document.createElement("tr");
 
-    allResults.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row.Player}</td>
-        <td>${row.Main}</td>
-        <td>${row.Score}</td>
-        <td>${row['Time (s)']}</td>
-        <td>${row.Date}</td>
+      row.innerHTML = `
+        <td>${result["Player"] || "-"}</td>
+        <td>${result["Main"] || "-"}</td>
+        <td>${result["Score"] || "-"}</td>
+        <td>${result["Time (s)"] || "-"}</td>
+        <td>${result["Date"] || "-"}</td>
       `;
-      tbody.appendChild(tr);
+
+      tableBody.appendChild(row);
     });
-  } catch (err) {
-    console.error('Error loading leaderboard:', err);
+
+  } catch (error) {
+    console.error("Error loading leaderboard:", error);
+    tableBody.innerHTML = `<tr><td colspan="5">Failed to load leaderboard.</td></tr>`;
   }
 }
 
+// Define goBack() so leaderboard.html doesn't throw error
 function goBack() {
-  window.history.back();
+  window.location.href = "../index.html";
 }
 
-loadLeaderboard();
+window.onload = loadLeaderboard;
