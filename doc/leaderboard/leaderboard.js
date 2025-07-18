@@ -1,5 +1,5 @@
 async function loadCSVFilesManifest() {
-  const res = await fetch('../results/results-index.json');
+  const res = await fetch('doc/results/results-index.json');
   if (!res.ok) throw new Error('Could not load CSV manifest');
   const data = await res.json();
   return data.csvFiles; // Array of file paths with 'doc/results/...' prefix
