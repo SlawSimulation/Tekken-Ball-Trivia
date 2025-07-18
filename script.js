@@ -11,6 +11,10 @@ let answers = [];
 let questionStartTime = 0;
 let quizStartTime = 0;
 
+const QUESTION_TIME_LIMIT = 20; // seconds
+let questionTimerInterval = null;
+let timeLeft = QUESTION_TIME_LIMIT;
+
 document.getElementById('player-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -41,9 +45,8 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Use Fisher-Yates shuffle for questions and slice first 20
+  // Shuffle all questions and take first 20
   questions = shuffleArray(allQuestions).slice(0, 20);
-
   currentQuestion = 0;
   score = 0;
   answers = [];
@@ -56,6 +59,24 @@ function displayQuestion() {
   }
 
   questionStartTime = Date.now();
+  timeLeft = QUESTION_TIME_LIMIT;
+
+  // Clear previous timer if any
+  if (questionTimerInterval) clearInterval(questionTimerInterval);
+
+  updateTimerDisplay();
+
+  // Start countdown timer (updates every second)
+  questionTimerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+
+    if (timeLeft <= 0) {
+      clearInterval(questionTimerInterval);
+      // Auto mark incorrect if no answer chosen
+      selectAnswer('', questions[currentQuestion].answers[questions[currentQuestion].answer], questions[currentQuestion]);
+    }
+  }, 1000);
 
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
@@ -71,19 +92,27 @@ function displayQuestion() {
     const correctIndex = q.answer;
     const correctAnswer = q.answers[correctIndex];
     const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
-
-    // Shuffle answer choices with Fisher-Yates
     const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
 
     choices.forEach(choice => {
       const btn = document.createElement('button');
       btn.textContent = choice;
-      btn.onclick = () => selectAnswer(choice, correctAnswer, q);
+      btn.onclick = () => {
+        clearInterval(questionTimerInterval);
+        selectAnswer(choice, correctAnswer, q);
+      };
       answersDiv.appendChild(btn);
     });
   } catch (err) {
     console.error('Error displaying question:', err);
     alert('Error displaying question, please reload.');
+  }
+}
+
+function updateTimerDisplay() {
+  const timerEl = document.getElementById('timer');
+  if (timerEl) {
+    timerEl.textContent = `Time left: ${timeLeft}s`;
   }
 }
 
@@ -94,7 +123,7 @@ function selectAnswer(selected, correctAnswer, questionObj) {
   answers.push({
     questionNumber: currentQuestion + 1,
     question: questionObj.question,
-    selected,
+    selected: selected || 'No answer',
     correct: correctAnswer,
     correctBool: isCorrect ? 'Yes' : 'No',
     answerTime,
@@ -118,6 +147,10 @@ function endQuiz() {
 
   // Fill progress bar to 100%
   document.getElementById('progress-bar').style.width = `100%`;
+
+  // Clear timer if any
+  if (questionTimerInterval) clearInterval(questionTimerInterval);
+  document.getElementById('timer').textContent = '';
 
   document.getElementById('trivia-container').innerHTML = `
     <h2>🎮 Game Over!</h2>
@@ -156,12 +189,6 @@ function downloadCSV() {
   document.body.removeChild(link);
 }
 
-// Fisher-Yates shuffle
-function shuffleArray(array) {
-  let arr = array.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
