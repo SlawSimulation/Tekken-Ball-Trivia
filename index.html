@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Tekken Ball Trivia</title>
+  <title>🔥 Tekken Ball Trivia 🔥</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,24 +11,24 @@
   <form id="player-form">
     <label>
       Player Name:<br />
-      <input type="text" id="player-name" placeholder="Username" required />
+      <input type="text" id="player-name" placeholder="e.g. DQ | SlawPro" required />
     </label><br /><br />
     <label>
       Main Character(s):<br />
-      <input type="text" id="player-main" placeholder="Main Character" required />
+      <input type="text" id="player-main" placeholder="e.g. Azucena/Leo" required />
     </label><br /><br />
     <button type="submit">Start Trivia</button>
   </form>
 
   <div id="trivia-container" style="display:none;">
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <p id="timer">Time Left: <span id="time-left">15</span>s</p>
     <p id="question"></p>
-    <p id="timer" style="font-weight:bold; color:#ff4444; margin: 0.5rem 0;"></p>
     <div id="answers"></div>
     <div id="secret-msg" style="display:none; margin-top: 1rem; font-weight: bold; color: #ff4444;">
       🎉 Secret Tekken Knowledge Unlocked! 🎉
-    </div>
-    <div id="progress-container" style="width: 80%; margin: 1rem auto; background: #444; border-radius: 5px; height: 10px;">
-      <div id="progress-bar" style="height: 10px; width: 0%; background: #ff3333; border-radius: 5px;"></div>
     </div>
   </div>
 

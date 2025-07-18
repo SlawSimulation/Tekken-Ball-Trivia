@@ -11,9 +11,8 @@ let answers = [];
 let questionStartTime = 0;
 let quizStartTime = 0;
 
-const QUESTION_TIME_LIMIT = 20; // seconds
-let questionTimerInterval = null;
-let timeLeft = QUESTION_TIME_LIMIT;
+const questionTimeLimit = 15; // seconds
+let timerInterval;
 
 document.getElementById('player-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -45,7 +44,7 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle all questions and take first 20
+  // Shuffle all questions and pick 20
   questions = shuffleArray(allQuestions).slice(0, 20);
   currentQuestion = 0;
   score = 0;
@@ -58,25 +57,9 @@ function displayQuestion() {
     return;
   }
 
+  resetTimer();
+
   questionStartTime = Date.now();
-  timeLeft = QUESTION_TIME_LIMIT;
-
-  // Clear previous timer if any
-  if (questionTimerInterval) clearInterval(questionTimerInterval);
-
-  updateTimerDisplay();
-
-  // Start countdown timer (updates every second)
-  questionTimerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-
-    if (timeLeft <= 0) {
-      clearInterval(questionTimerInterval);
-      // Auto mark incorrect if no answer chosen
-      selectAnswer('', questions[currentQuestion].answers[questions[currentQuestion].answer], questions[currentQuestion]);
-    }
-  }, 1000);
 
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
@@ -88,42 +71,31 @@ function displayQuestion() {
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  try {
-    const correctIndex = q.answer;
-    const correctAnswer = q.answers[correctIndex];
-    const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
-    const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
+  const correctIndex = q.answer;
+  const correctAnswer = q.answers[correctIndex];
+  const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
+  const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
 
-    choices.forEach(choice => {
-      const btn = document.createElement('button');
-      btn.textContent = choice;
-      btn.onclick = () => {
-        clearInterval(questionTimerInterval);
-        selectAnswer(choice, correctAnswer, q);
-      };
-      answersDiv.appendChild(btn);
-    });
-  } catch (err) {
-    console.error('Error displaying question:', err);
-    alert('Error displaying question, please reload.');
-  }
-}
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.textContent = choice;
+    btn.onclick = () => selectAnswer(choice, correctAnswer, q);
+    answersDiv.appendChild(btn);
+  });
 
-function updateTimerDisplay() {
-  const timerEl = document.getElementById('timer');
-  if (timerEl) {
-    timerEl.textContent = `Time left: ${timeLeft}s`;
-  }
+  startTimer();
 }
 
 function selectAnswer(selected, correctAnswer, questionObj) {
+  stopTimer();
+
   const answerTime = (Date.now() - questionStartTime) / 1000; // seconds
   const isCorrect = selected === correctAnswer;
 
   answers.push({
     questionNumber: currentQuestion + 1,
     question: questionObj.question,
-    selected: selected || 'No answer',
+    selected,
     correct: correctAnswer,
     correctBool: isCorrect ? 'Yes' : 'No',
     answerTime,
@@ -143,16 +115,17 @@ function selectAnswer(selected, correctAnswer, questionObj) {
 }
 
 function endQuiz() {
+  stopTimer();
+
   const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
 
   // Fill progress bar to 100%
   document.getElementById('progress-bar').style.width = `100%`;
 
-  // Clear timer if any
-  if (questionTimerInterval) clearInterval(questionTimerInterval);
-  document.getElementById('timer').textContent = '';
-
-  document.getElementById('trivia-container').innerHTML = `
+  document.getElementById('trivia-container').style.display = 'none';
+  const finishDiv = document.getElementById('finish-msg');
+  finishDiv.style.display = 'block';
+  finishDiv.innerHTML = `
     <h2>🎮 Game Over!</h2>
     <p>${player.name} | Main: ${player.main}</p>
     <p>Your final score: ${score}/${questions.length}</p>
@@ -189,6 +162,34 @@ function downloadCSV() {
   document.body.removeChild(link);
 }
 
+// Timer code
+function startTimer() {
+  let timeLeft = questionTimeLimit;
+  const timeLeftSpan = document.getElementById('time-left');
+  timeLeftSpan.textContent = timeLeft;
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timeLeftSpan.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      selectAnswer('', questions[currentQuestion], questions[currentQuestion]); // no answer chosen
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+function resetTimer() {
+  stopTimer();
+  document.getElementById('time-left').textContent = questionTimeLimit;
+}
+
 function shuffleArray(arr) {
-  return arr.sort(() => Math.random() - 0.5);
+  return arr
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
 }
