@@ -3,13 +3,16 @@ name: Generate Results Index
 on:
   push:
     paths:
-      - 'doc/results/**'
+      - 'doc/results/*.csv'  # Only run when CSVs are added/changed
 
 jobs:
   generate-index:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout with PAT
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_PAT }}
 
       - name: Generate results-index.json
         run: |
@@ -18,12 +21,9 @@ jobs:
           echo "{\"csvFiles\": $files_json}" > doc/results/results-index.json
 
       - name: Commit and push results-index.json
-        env:
-          ACTIONS_PAT: ${{ secrets.ACTIONS_PAT }}
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git remote set-url origin https://x-access-token:${ACTIONS_PAT}@github.com/${{ github.repository }}
           git add doc/results/results-index.json
           git diff --cached --quiet || git commit -m "Update results-index.json"
-          git push origin HEAD:${{ github.ref }}
+          git push
