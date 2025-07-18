@@ -2,15 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tekken Ball Trivia Leaderboard</title>
   <link rel="stylesheet" href="leaderboard.css" />
 </head>
 <body>
-  <h1>🔥 Tekken Ball Trivia Leaderboard 🔥</h1>
-  <div id="leaderboard-container">
-    <!-- Leaderboard table will be injected here by leaderboard.js -->
-  </div>
-  <button id="back-btn" onclick="goBack()">Back to Quiz</button>
+  <h1>Tekken Ball Trivia Leaderboard</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Main</th>
+        <th>Score</th>
+        <th>Time (s)</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-body">
+      <!-- leaderboard rows inserted here by JS -->
+    </tbody>
+  </table>
+
+  <button onclick="goBack()">Back</button>
 
   <script src="leaderboard.js"></script>
 </body>
