@@ -1,121 +1,68 @@
 async function loadLeaderboard() {
-  const container = document.getElementById('leaderboard-container');
-  container.textContent = 'Loading leaderboard...';
-
   try {
-    const indexResp = await fetch('../results/results-index.json');
-    if (!indexResp.ok) throw new Error('Could not load results index');
-    const indexData = await indexResp.json();
+    // Fetch the results-index.json (relative path from leaderboard.html)
+    const indexResponse = await fetch('../results/results-index.json');
+    const indexData = await indexResponse.json();
 
-    const csvFiles = indexData.csvFiles;
-    if (!csvFiles.length) {
-      container.textContent = 'No results found.';
-      return;
-    }
+    const leaderboardTableBody = document.getElementById('leaderboard-body');
+    leaderboardTableBody.innerHTML = '';
 
-    const allResults = [];
+    for (const csvFile of indexData.csvFiles) {
+      // Prepend '../' because leaderboard.html is inside 'doc/leaderboard/'
+      const csvPath = `../${csvFile}`;
 
-    for (const filePath of csvFiles) {
-      try {
-        const csvResp = await fetch(filePath);
-        if (!csvResp.ok) continue;
-        const csvText = await csvResp.text();
-        const rows = csvText.trim().split('\n').slice(1); // skip header
+      const response = await fetch(csvPath);
+      if (!response.ok) {
+        console.warn(`Failed to load CSV file: ${csvPath}`);
+        continue; // skip missing files
+      }
+      const text = await response.text();
 
-        let correctCount = 0;
-        let totalTime = 0;
-        let playerName = '';
-        let playerMain = '';
-        let date = '';
+      // Parse CSV, skipping header row
+      const lines = text.trim().split('\n');
+      for (let i = 1; i < lines.length; i++) {
+        const [player, main, questionNumber, question, selected, correct, correctBool, answerTime, timestamp] = parseCSVLine(lines[i]);
 
-        rows.forEach(row => {
-          const cols = parseCSVRow(row);
-          playerName = cols[0];
-          playerMain = cols[1];
-          if (cols[6] === 'Yes') correctCount++;
-          totalTime += parseFloat(cols[7]) || 0;
-          date = cols[8]; // use last row's timestamp as session date
-        });
+        // You can customize what you want to show in leaderboard — 
+        // here we show player, main, score (count correct answers), time, date
+        // Assuming each CSV is one quiz session, score and time are same for all rows,
+        // so you may want to aggregate or just display individual rows.
 
-        allResults.push({
-          player: playerName,
-          main: playerMain,
-          score: correctCount,
-          time: totalTime.toFixed(2),
-          date: new Date(date)
-        });
+        // For simplicity, show one row per CSV with aggregated data (you can adapt as needed)
+        // Or show individual answers per row (less common for leaderboard).
 
-      } catch {
-        continue;
+        // Example: Just append each answer row:
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${player}</td>
+          <td>${main}</td>
+          <td>${correctBool === 'Yes' ? 1 : 0}</td>
+          <td>${answerTime}</td>
+          <td>${new Date(timestamp).toLocaleString()}</td>
+        `;
+        leaderboardTableBody.appendChild(tr);
       }
     }
-
-    allResults.sort((a, b) => {
-      if (b.score === a.score) return a.time - b.time;
-      return b.score - a.score;
-    });
-
-    let html = `<table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Player</th>
-          <th>Main</th>
-          <th>Score</th>
-          <th>Time (s)</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-    allResults.forEach((r, i) => {
-      html += `<tr>
-        <td>${i + 1}</td>
-        <td>${escapeHTML(r.player)}</td>
-        <td>${escapeHTML(r.main)}</td>
-        <td>${r.score}</td>
-        <td>${r.time}</td>
-        <td>${r.date.toLocaleString()}</td>
-      </tr>`;
-    });
-
-    html += '</tbody></table>';
-    container.innerHTML = html;
-
   } catch (err) {
-    container.textContent = 'Failed to load leaderboard.';
-    console.error(err);
+    console.error('Error loading leaderboard:', err);
   }
 }
 
-function parseCSVRow(row) {
-  const re = /("([^"]|"")*"|[^,]*)(,|$)/g;
-  const cols = [];
-  let match;
-  while ((match = re.exec(row)) !== null) {
-    let val = match[1];
-    if (val.startsWith('"') && val.endsWith('"')) {
-      val = val.slice(1, -1).replace(/""/g, '"');
+// Simple CSV parser (handles commas inside quotes, etc.)
+function parseCSVLine(line) {
+  const regex = /(?:,|\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^",\n]*))/g;
+  const fields = [];
+  line.replace(regex, (m0, m1, m2) => {
+    if (m1 !== undefined) {
+      fields.push(m1.replace(/""/g, '"'));
+    } else {
+      fields.push(m2);
     }
-    cols.push(val);
-    if (match[3] === '') break;
-  }
-  return cols;
+    return '';
+  });
+  return fields;
 }
 
-function escapeHTML(str) {
-  if (!str) return '';
-  return str.replace(/[&<>"']/g, s => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[s]));
-}
-
-function goBack() {
-  window.location.href = '../../index.html';
-}
-
-loadLeaderboard();
+document.addEventListener('DOMContentLoaded', () => {
+  loadLeaderboard();
+});
