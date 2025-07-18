@@ -1,0 +1,28 @@
+name: Generate Results Index
+
+on:
+  push:
+    paths:
+      - 'doc/results/**'
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate results-index.json
+        run: |
+          files=$(ls doc/results/*.csv 2>/dev/null || echo "")
+          files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
+          echo "{\"csvFiles\": $files_json}" > doc/results/results-index.json
+
+      - name: Commit and push results-index.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add doc/results/results-index.json
+          git diff --cached --quiet || git commit -m "Update results-index.json"
+          git push
+        env:
+          ACTIONS_PAT: ${{ secrets.ACTIONS_PAT }}
