@@ -41,8 +41,9 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle and take first 20 questions
-  questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
+  // Use Fisher-Yates shuffle for questions and slice first 20
+  questions = shuffleArray(allQuestions).slice(0, 20);
+
   currentQuestion = 0;
   score = 0;
   answers = [];
@@ -70,6 +71,8 @@ function displayQuestion() {
     const correctIndex = q.answer;
     const correctAnswer = q.answers[correctIndex];
     const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
+
+    // Shuffle answer choices with Fisher-Yates
     const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
 
     choices.forEach(choice => {
@@ -153,6 +156,12 @@ function downloadCSV() {
   document.body.removeChild(link);
 }
 
-function shuffleArray(arr) {
-  return arr.sort(() => Math.random() - 0.5);
+// Fisher-Yates shuffle
+function shuffleArray(array) {
+  let arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
