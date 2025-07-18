@@ -76,7 +76,7 @@ async function loadLeaderboard() {
 
 // Define goBack() so leaderboard.html doesn't throw error
 function goBack() {
-  window.location.href = "../index.html";
+  window.location.href = "../../index.html";
 }
 
 window.onload = loadLeaderboard;
