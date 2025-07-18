@@ -3,13 +3,14 @@ name: Generate Results Index
 on:
   push:
     paths:
-      - 'doc/results/*.csv'  # Trigger on CSV changes
+      - 'doc/results/*.csv'  # Run only when CSV files are added or changed in doc/results/
 
 jobs:
   generate-index:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout with PAT
+      - name: Checkout repository with PAT
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.ACTIONS_PAT }}
@@ -25,7 +26,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add doc/results/results-index.json
-      
+
           if ! git diff --cached --quiet; then
             git commit -m "Update results-index.json"
             git pull --rebase origin main

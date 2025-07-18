@@ -1,1 +1,6 @@
-
+{
+  "csvFiles": [
+    "doc/results/trivia_results_169123456.csv",
+    "doc/results/trivia_results_169123457.csv"
+  ]
+}
