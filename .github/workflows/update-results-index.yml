@@ -4,24 +4,35 @@ on:
   push:
     paths:
       - 'doc/results/*.csv'
+  workflow_dispatch:
 
 jobs:
   update-index:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout using PAT
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_PAT }}
 
-      - name: Generate results-index.json
+      - name: Set up Git config
         run: |
-          files=$(ls doc/results/*.csv || echo "")
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Rebuild results-index.json
+        run: |
+          files=$(find doc/results -type f -name '*.csv' | sort)
           files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
           echo "{\"csvFiles\": $files_json}" > doc/results/results-index.json
 
-      - name: Commit results-index.json
+      - name: Commit and push changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git fetch origin main
+          git pull --rebase origin main
+
           git add doc/results/results-index.json
-          git diff --cached --quiet || git commit -m "Update results-index.json"
-          git push
+          git diff --cached --quiet || git commit -m "Rebuild results-index.json"
+
+          git push https://x-access-token:${{ secrets.ACTIONS_PAT }}@github.com/${{ github.repository }} HEAD:main

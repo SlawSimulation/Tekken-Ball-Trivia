@@ -1,0 +1,38 @@
+name: Upload Trivia Result
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: 'CSV file name (e.g. trivia_results_123456.csv)'
+        required: true
+      content:
+        description: 'Base64-encoded CSV content'
+        required: true
+
+jobs:
+  upload-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout with PAT
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_PAT }}
+
+      - name: Set up Git config
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Decode and write CSV
+        run: |
+          echo "${{ github.event.inputs.content }}" | base64 --decode > doc/results/${{ github.event.inputs.filename }}
+
+      - name: Commit and push
+        run: |
+          git fetch origin main
+          git pull --rebase origin main
+          git add doc/results/${{ github.event.inputs.filename }}
+          git commit -m "Add result: ${{ github.event.inputs.filename }}"
+          git push https://x-access-token:${{ secrets.ACTIONS_PAT }}@github.com/${{ github.repository }} HEAD:main

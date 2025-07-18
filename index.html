@@ -11,11 +11,11 @@
     <h1>Tekken Ball Trivia</h1>
     <form id="player-form">
       <label>
-        Your Name:
+        Your Name:<br />
         <input type="text" id="player-name" required />
       </label><br />
       <label>
-        Your Main Character:
+        Your Main Character:<br />
         <input type="text" id="player-main" required />
       </label><br />
       <button type="submit">Start Quiz</button>
@@ -36,10 +36,17 @@
     <h2>🎮 Game Over!</h2>
     <p id="final-score"></p>
     <p id="total-time"></p>
+
+    <!-- Upload trigger link, initially hidden -->
+    <a id="upload-trigger-link" style="display:none; margin: 10px 0; cursor:pointer;">Download Upload Trigger File</a><br/>
+
     <button id="btn-download-csv">Download Your Results CSV</button>
     <button id="btn-restart-quiz">Restart Quiz</button>
-    <button id="btn-go-leaderboard-end">Go to Leaderboard</button>
-    <p><strong>Important:</strong> After downloading, please upload your CSV file manually to the <code>doc/results/</code> folder in the GitHub repository to have your score included in the leaderboard. This is required to keep your data secure.</p>
+    <button id="btn-go-leaderboard-end" onclick="goLeaderboard()">Go to Leaderboard</button>
+
+    <p style="margin-top: 1rem; font-size: 0.9em;">
+      <strong>Important:</strong> After downloading the upload trigger file, please commit <code>upload-file.txt</code> to the repository to have your score automatically included in the leaderboard via GitHub Actions.
+    </p>
   </div>
 
   <script src="script.js"></script>

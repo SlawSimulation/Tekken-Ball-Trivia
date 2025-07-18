@@ -36,7 +36,6 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
-  // Shuffle and take first 20 questions
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
   currentQuestion = 0;
   score = 0;
@@ -54,7 +53,6 @@ function displayQuestion() {
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
 
-  // Update progress bar width
   const progressPercent = (currentQuestion / questions.length) * 100;
   document.getElementById('progress-bar').style.width = `${progressPercent}%`;
 
@@ -116,13 +114,7 @@ function endQuiz() {
 
   endContainer.style.display = 'block';
 
-  // Bind buttons
-  document.getElementById('btn-download-csv').onclick = downloadCSV;
-  document.getElementById('btn-restart-quiz').onclick = restartQuiz;
-  document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
-}
-
-function downloadCSV() {
+  // Prepare CSV content
   const csvRows = [
     ['Player', 'Main', 'Question Number', 'Question', 'Selected Answer', 'Correct Answer', 'Correct?', 'Answer Time (s)', 'Timestamp'],
     ...answers.map(ans => [
@@ -137,23 +129,46 @@ function downloadCSV() {
       ans.timestamp
     ])
   ];
-
   const csv = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+  // Create downloadable CSV link
   const blob = new Blob([csv], { type: 'text/csv' });
   const filename = `trivia_results_${Date.now()}.csv`;
+  const downloadLink = document.getElementById('btn-download-csv');
+  downloadLink.href = URL.createObjectURL(blob);
+  downloadLink.download = filename;
 
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Automatically create upload-file.txt trigger for GitHub Action
+  createUploadTrigger(filename, csv);
+
+  // Bind buttons
+  document.getElementById('btn-restart-quiz').onclick = restartQuiz;
+  document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
+}
+
+function createUploadTrigger(filename, csvContent) {
+  // Base64 encode CSV content to safely store in upload-file.txt
+  const encodedCsv = btoa(unescape(encodeURIComponent(csvContent)));
+  const triggerText = `FILENAME=${filename}\nCONTENT=${encodedCsv}`;
+
+  const blob = new Blob([triggerText], { type: 'text/plain' });
+  const triggerLink = document.getElementById('upload-trigger-link');
+
+  triggerLink.href = URL.createObjectURL(blob);
+  triggerLink.download = 'upload-file.txt';
+  triggerLink.style.display = 'inline-block';
+
+  // Optional: alert user to upload this file manually or drag/drop to GitHub
+  alert('Your upload trigger file is ready! Please commit the generated "upload-file.txt" to the repository to have your results uploaded automatically.');
+}
+
+function downloadCSV() {
+  document.getElementById('btn-download-csv').click();
 }
 
 function restartQuiz() {
   document.getElementById('end-container').style.display = 'none';
   document.getElementById('player-form-container').style.display = 'block';
-  // Clear inputs
   document.getElementById('player-name').value = '';
   document.getElementById('player-main').value = '';
 }
