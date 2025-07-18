@@ -1,33 +1,33 @@
 [
   {
-    "question": "What is the primary gameplay objective in Tekken Ball mode?",
+    "question": "What is the primary gameplay objective in the Tekken Ball mode?",
     "answer": 1,
     "answers": ["Defeat your opponent with combos", "Hit your opponent with a ball to reduce their health", "Survive the longest without getting hit", "Collect all power-ups"]
   },
   {
-    "question": "Which Tekken game first introduced Tekken Ball mode?",
-    "answer": 0,
-    "answers": ["Tekken 3", "Tekken Tag Tournament", "Tekken 4", "Tekken 2"]
+    "question": "Which Tekken game first introduced the Tekken Ball mode?",
+    "answer": 1,
+    "answers": ["Tekken 8", "Tekken 3", "Tekken Tag Tournament 2", "Tekken 4", "Tekken 2"]
   },
   {
-    "question": "Who is a fan-favorite character known for dominating Tekken Ball matches due to fast strikes?",
-    "answer": 2,
-    "answers": ["King", "Nina", "Hwoarang", "Heihachi"]
+    "question": "Which character in Tekken 8 Ball is a popular pick for dominating Tekken Ball matches with one signature fast and powerful strike?",
+    "answer": 0,
+    "answers": ["King", "Nina", "Hwoarang", "Steve", "Anna"]
   },
   {
     "question": "In Tekken Ball, what happens when both players fail to hit the ball?",
-    "answer": 3,
-    "answers": ["Ball explodes", "Player with most HP wins", "Extra ball appears", "The ball resets"]
+    "answer": 2,
+    "answers": ["Ball explodes", "Player with most HP wins", "The ball resets", "Extra ball appears"]
   },
   {
     "question": "Which item behaves similarly to the Tekken Ball mechanics in Smash Bros?",
-    "answer": 0,
-    "answers": ["Soccer Ball", "Beam Sword", "Cracker Launcher", "Hammer"]
+    "answer": 1,
+    "answers": ["Beam Sword", "Soccer Ball", "Cracker Launcher", "Hammer"]
   },
   {
     "question": "Which platform was Tekken Ball first available on?",
     "answer": 1,
-    "answers": ["Arcade", "PlayStation 1", "PlayStation 2", "PSP"]
+    "answers": ["Arcade", "PlayStation 1", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5", "PSP", "3DS"]
   },
   {
     "question": "Can you win in Tekken Ball by health KO alone?",
@@ -45,24 +45,24 @@
     "answers": ["Tennis", "Basketball", "Volleyball", "Wrestling"]
   },
   {
-    "question": "What color is the original Tekken Ball?",
-    "answer": 3,
-    "answers": ["Green", "Blue", "Yellow", "Red"]
-  },
-  {
-    "question": "Can you launch the ball with throws in Tekken Ball?",
-    "answer": 1,
-    "answers": ["Yes, always", "No, throws don't affect the ball", "Only air throws", "Only if rage mode is active"]
-  },
-  {
-    "question": "Who yells 'Hyaaa!' in many Tekken Ball attacks?",
+    "question": "How many different ball types are selectable in the Original Tekken Ball mode?",
     "answer": 0,
-    "answers": ["Paul", "Kazuya", "Lee", "Xiaoyu"]
+    "answers": ["3", "5", "7", "9"]
   },
   {
-    "question": "Which Tekken 3 character is a boxing-style fighter, useful in Tekken Ball?",
+    "question": "What happens if a player tries to grab the ball mid-air?",
+    "answer": 3,
+    "answers": ["The ball is thrown back", "The throw causes the ball to explode", "The player grabs and holds the ball", "The ball is momentarily suspended or stabilized", "The throw has no interaction with the ball"]
+  },
+  {
+    "question": "Which move is famously used by King to dominate Tekken Ball with fast and precise hits?",
+    "answer": 1,
+    "answers": ["f+2", "b+3", "d/f+1", "u/f+4"]
+  },
+  {
+    "question": "Which of the following actions can stabilize or “stall” the ball mid-air?",
     "answer": 2,
-    "answers": ["Lei", "Heihachi", "Steve Fox", "Bryan"]
+    "answers": ["Sidestep", "Jump", "Throw", "Block"]
   },
   {
     "question": "What determines ball power in Tekken Ball mode?",
@@ -71,28 +71,28 @@
   },
   {
     "question": "Which move type is best for controlling the Tekken Ball?",
-    "answer": 2,
+    "answer": 0,
     "answers": ["Throws", "Lows", "Mid-launchers", "Power crushes"]
   },
   {
-    "question": "Can the Tekken Ball reflect off the walls?",
-    "answer": 3,
-    "answers": ["Yes, but only once", "Yes, but loses power", "No", "No, Tekken Ball has no walls"]
-  },
-  {
-    "question": "Which character is often banned in fan-made Tekken Ball tournaments?",
-    "answer": 0,
-    "answers": ["Gon", "Eddy", "Devil Jin", "Armor King"]
-  },
-  {
-    "question": "Which of these is **not** a feature in Tekken Ball mode?",
+    "question": "Can the Ball reflect off the walls?",
     "answer": 2,
-    "answers": ["Multiplayer", "Ball power scaling", "Combo breakers", "Hit reflection"]
+    "answers": ["Yes, but only once", "Yes, but loses power", "No, Tekken Ball has no walls"]
+  },
+  {
+    "question": "Which character is often banned in Tekken 3 Ball tournaments?",
+    "answer": 0,
+    "answers": ["Gon", "Eddy", "Jin", "Ogre", "Anna"]
+  },
+  {
+    "question": "Which of these is <b>not</b> a feature in Tekken Ball mode?",
+    "answer": 2,
+    "answers": ["Multiplayer", "Ball power scaling", "Combo breakers", "Heat Engager", "Hit reflection"]
   },
   {
     "question": "Why is Law a strong pick in Tekken Ball?",
     "answer": 1,
-    "answers": ["High throws", "Fast kick combos", "Projectile attacks", "Teleportation"]
+    "answers": ["High throws", "Fast kick combos", "Projectile attacks", "Teleportation", "Nunchucks"]
   },
   {
     "question": "What makes Tekken Ball different from standard fighting modes?",
