@@ -91,7 +91,7 @@
   },
   {
     "question": "Why is Law a strong pick in Tekken Ball?",
-    "answer": 1,
+    "answer": [1, 4],
     "answers": ["High throws", "Fast kick combos", "Projectile attacks", "Teleportation", "Nunchucks"]
   },
   {
