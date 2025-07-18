@@ -1,1 +1,7 @@
-{"csvFiles": ["doc/results/trivia_results_1752765721571.csv","doc/results/trivia_results_1752766385964.csv","doc/results/trivia_results_1752803791590.csv"]}
+{
+  "csvFiles": [
+    "results/trivia_results_1752765721571.csv",
+    "results/trivia_results_1752766385964.csv",
+    "results/trivia_results_1752803791590.csv"
+  ]
+}
