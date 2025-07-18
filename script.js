@@ -159,7 +159,7 @@ function restartQuiz() {
 }
 
 function goLeaderboard() {
-  window.location.href = 'leaderboard/leaderboard.html';
+  window.location.href = 'doc/leaderboard/leaderboard.html';
 }
 
 function shuffleArray(arr) {
