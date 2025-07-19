@@ -35,8 +35,6 @@ async function loadQuestions() {
   const response = await fetch('trivia.json');
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
-
-  // Shuffle and take first 20 questions
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
   currentQuestion = 0;
   score = 0;
@@ -44,43 +42,30 @@ async function loadQuestions() {
 }
 
 function displayQuestion() {
-  if (currentQuestion >= questions.length) {
-    endQuiz();
-    return;
-  }
+  if (currentQuestion >= questions.length) return endQuiz();
 
   questionStartTime = Date.now();
-
   const q = questions[currentQuestion];
-  document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
 
-  // Update progress bar width
-  const progressPercent = (currentQuestion / questions.length) * 100;
-  document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+  document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
+  document.getElementById('progress-bar').style.width = `${(currentQuestion / questions.length) * 100}%`;
 
   const answersDiv = document.getElementById('answers');
   answersDiv.innerHTML = '';
 
-  try {
-    const correctIndex = q.answer;
-    const correctAnswer = q.answers[correctIndex];
-    // Shuffle all answers so correct isn't always first
-    const choices = shuffleArray(q.answers);
+  const correctAnswer = q.answers[q.answer];
+  const choices = shuffleArray([...q.answers]);
 
-    choices.forEach(choice => {
-      const btn = document.createElement('button');
-      btn.textContent = choice;
-      btn.onclick = () => selectAnswer(choice, correctAnswer, q);
-      answersDiv.appendChild(btn);
-    });
-  } catch (err) {
-    console.error('Error displaying question:', err);
-    alert('Error displaying question, please reload.');
-  }
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.textContent = choice;
+    btn.onclick = () => selectAnswer(choice, correctAnswer, q);
+    answersDiv.appendChild(btn);
+  });
 }
 
 function selectAnswer(selected, correctAnswer, questionObj) {
-  const answerTime = (Date.now() - questionStartTime) / 1000; // seconds
+  const answerTime = (Date.now() - questionStartTime) / 1000;
   const isCorrect = selected === correctAnswer;
 
   answers.push({
@@ -100,37 +85,24 @@ function selectAnswer(selected, correctAnswer, questionObj) {
   }
 
   if (isCorrect) score++;
-
   currentQuestion++;
   displayQuestion();
 }
 
-async function endQuiz() {
-  const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
+function endQuiz() {
+  const totalTime = (Date.now() - quizStartTime) / 1000;
 
   document.getElementById('trivia-container').style.display = 'none';
-
   const endContainer = document.getElementById('end-container');
   document.getElementById('final-score').textContent = `${player.name} | Main: ${player.main} | Score: ${score}/${questions.length}`;
   document.getElementById('total-time').textContent = `Total quiz time: ${totalTime.toFixed(2)} seconds`;
-
   endContainer.style.display = 'block';
 
-  // Bind buttons
   document.getElementById('btn-download-csv').onclick = downloadCSV;
   document.getElementById('btn-restart-quiz').onclick = restartQuiz;
   document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
 
-  // Upload results to Google Sheets
-  const uploadData = {
-    player: player.name,
-    main: player.main,
-    score,
-    totalTime: totalTime.toFixed(2),
-    answers
-  };
-
-  await uploadResultsToGoogleSheet(uploadData);
+  sendToGitHub(answers, totalTime);
 }
 
 function downloadCSV() {
@@ -164,7 +136,6 @@ function downloadCSV() {
 function restartQuiz() {
   document.getElementById('end-container').style.display = 'none';
   document.getElementById('player-form-container').style.display = 'block';
-  // Clear inputs
   document.getElementById('player-name').value = '';
   document.getElementById('player-main').value = '';
 }
@@ -177,21 +148,36 @@ function shuffleArray(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
 
-// Upload to Google Sheets Web App
-async function uploadResultsToGoogleSheet(data) {
-  const url = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL'; // Replace this with your actual Google Apps Script Web App URL
+async function sendToGitHub(results, totalTime) {
+  const filename = `trivia_results_${Date.now()}.csv`;
+  const csv = [
+    ['Player', 'Main', 'Question Number', 'Question', 'Selected Answer', 'Correct Answer', 'Correct?', 'Answer Time (s)', 'Timestamp'],
+    ...results.map(ans => [
+      player.name,
+      player.main,
+      ans.questionNumber,
+      ans.question,
+      ans.selected,
+      ans.correct,
+      ans.correctBool,
+      ans.answerTime.toFixed(2),
+      ans.timestamp
+    ])
+  ].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
 
-  try {
-    await fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',  // Google Apps Script doesn't send CORS headers
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-    // No response body expected in no-cors mode; assume success
-  } catch (err) {
-    console.error('Failed to upload results:', err);
-  }
+
+  await fetch(`https://api.github.com/repos/SlawSimulation/Tekken-Ball-Trivia/dispatches`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      event_type: 'upload_results',
+      client_payload: {
+        filename,
+        content: btoa(csv)
+      }
+    })
+  });
 }
