@@ -36,6 +36,7 @@ async function loadQuestions() {
   if (!response.ok) throw new Error('Could not load trivia.json');
   const allQuestions = await response.json();
 
+  // Shuffle and take first 20 questions
   questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
   currentQuestion = 0;
   score = 0;
@@ -53,6 +54,7 @@ function displayQuestion() {
   const q = questions[currentQuestion];
   document.getElementById('question').textContent = `Q${currentQuestion + 1}: ${q.question}`;
 
+  // Update progress bar width
   const progressPercent = (currentQuestion / questions.length) * 100;
   document.getElementById('progress-bar').style.width = `${progressPercent}%`;
 
@@ -62,8 +64,8 @@ function displayQuestion() {
   try {
     const correctIndex = q.answer;
     const correctAnswer = q.answers[correctIndex];
-    const wrongAnswers = q.answers.filter((_, i) => i !== correctIndex);
-    const choices = shuffleArray([correctAnswer, ...wrongAnswers]);
+    // Shuffle all answers so correct isn't always first
+    const choices = shuffleArray(q.answers);
 
     choices.forEach(choice => {
       const btn = document.createElement('button');
@@ -103,7 +105,7 @@ function selectAnswer(selected, correctAnswer, questionObj) {
   displayQuestion();
 }
 
-function endQuiz() {
+async function endQuiz() {
   const totalTime = (Date.now() - quizStartTime) / 1000; // seconds
 
   document.getElementById('trivia-container').style.display = 'none';
@@ -114,7 +116,24 @@ function endQuiz() {
 
   endContainer.style.display = 'block';
 
-  // Prepare CSV content
+  // Bind buttons
+  document.getElementById('btn-download-csv').onclick = downloadCSV;
+  document.getElementById('btn-restart-quiz').onclick = restartQuiz;
+  document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
+
+  // Upload results to Google Sheets
+  const uploadData = {
+    player: player.name,
+    main: player.main,
+    score,
+    totalTime: totalTime.toFixed(2),
+    answers
+  };
+
+  await uploadResultsToGoogleSheet(uploadData);
+}
+
+function downloadCSV() {
   const csvRows = [
     ['Player', 'Main', 'Question Number', 'Question', 'Selected Answer', 'Correct Answer', 'Correct?', 'Answer Time (s)', 'Timestamp'],
     ...answers.map(ans => [
@@ -129,46 +148,23 @@ function endQuiz() {
       ans.timestamp
     ])
   ];
-  const csv = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
 
-  // Create downloadable CSV link
+  const csv = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const filename = `trivia_results_${Date.now()}.csv`;
-  const downloadLink = document.getElementById('btn-download-csv');
-  downloadLink.href = URL.createObjectURL(blob);
-  downloadLink.download = filename;
 
-  // Automatically create upload-file.txt trigger for GitHub Action
-  createUploadTrigger(filename, csv);
-
-  // Bind buttons
-  document.getElementById('btn-restart-quiz').onclick = restartQuiz;
-  document.getElementById('btn-go-leaderboard-end').onclick = goLeaderboard;
-}
-
-function createUploadTrigger(filename, csvContent) {
-  // Base64 encode CSV content to safely store in upload-file.txt
-  const encodedCsv = btoa(unescape(encodeURIComponent(csvContent)));
-  const triggerText = `FILENAME=${filename}\nCONTENT=${encodedCsv}`;
-
-  const blob = new Blob([triggerText], { type: 'text/plain' });
-  const triggerLink = document.getElementById('upload-trigger-link');
-
-  triggerLink.href = URL.createObjectURL(blob);
-  triggerLink.download = 'upload-file.txt';
-  triggerLink.style.display = 'inline-block';
-
-  // Optional: alert user to upload this file manually or drag/drop to GitHub
-  alert('Your upload trigger file is ready! Please commit the generated "upload-file.txt" to the repository to have your results uploaded automatically.');
-}
-
-function downloadCSV() {
-  document.getElementById('btn-download-csv').click();
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 function restartQuiz() {
   document.getElementById('end-container').style.display = 'none';
   document.getElementById('player-form-container').style.display = 'block';
+  // Clear inputs
   document.getElementById('player-name').value = '';
   document.getElementById('player-main').value = '';
 }
@@ -179,4 +175,23 @@ function goLeaderboard() {
 
 function shuffleArray(arr) {
   return arr.sort(() => Math.random() - 0.5);
+}
+
+// Upload to Google Sheets Web App
+async function uploadResultsToGoogleSheet(data) {
+  const url = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL'; // Replace this with your actual Google Apps Script Web App URL
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',  // Google Apps Script doesn't send CORS headers
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    // No response body expected in no-cors mode; assume success
+  } catch (err) {
+    console.error('Failed to upload results:', err);
+  }
 }
