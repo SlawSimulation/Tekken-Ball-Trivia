@@ -1,0 +1,22 @@
+name: Upload Trivia Results to Google Sheet
+
+on:
+  repository_dispatch:
+    types: [upload_results]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decode and Save CSV
+        run: |
+          mkdir -p temp
+          echo "${{ github.event.client_payload.content }}" | base64 -d > "temp/${{ github.event.client_payload.filename }}"
+
+      - name: Upload to Google Sheets via Apps Script
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+        run: |
+          curl -X POST "$APPS_SCRIPT_URL" \
+            -H "Content-Type: text/csv" \
+            --data-binary @temp/${{ github.event.client_payload.filename }}
